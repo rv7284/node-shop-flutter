@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:node_shop/user_bloc.dart';
 
-class Login extends StatelessWidget {
-  const Login({Key key}) : super(key: key);
+class Login extends StatefulWidget {
+  final UserBloc userBloc;
+  Login({@required this.userBloc});
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  TextEditingController _emailController = TextEditingController();
+
+  TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    // userBloc.userAuth.add(UserCredentials(email, password))
     return Scaffold(
       appBar: AppBar(
         title: Text('Login'),
@@ -15,11 +26,14 @@ class Login extends StatelessWidget {
           children: <Widget>[
             SizedBox(height: 100.0),
             TextField(
+              controller: _emailController,
               decoration: InputDecoration(
                   hasFloatingPlaceholder: true, hintText: 'Email'),
             ),
             SizedBox(height: 20.0),
             TextField(
+              obscureText: true,
+              controller: _passwordController,
               decoration: InputDecoration(
                   hasFloatingPlaceholder: true, hintText: 'Password'),
             ),
@@ -32,7 +46,16 @@ class Login extends StatelessWidget {
                 'Login',
                 style: TextStyle(color: Colors.white, fontSize: 20.0),
               ),
-              onPressed: () {},
+              onPressed: () {
+                String email = _emailController.text;
+                String password = _passwordController.text;
+
+                if (email.isNotEmpty && password.isNotEmpty) {
+                  UserCredentials credentials =
+                      UserCredentials(email, password);
+                  widget.userBloc.userAuth.add(credentials);
+                }
+              },
             )
           ],
         ),

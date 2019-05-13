@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:node_shop/login.dart';
+import 'package:node_shop/user_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
 
@@ -23,8 +25,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  saveToken(String token) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('token', token);
+  }
+
+  final UserBloc userBloc = UserBloc();
   @override
   Widget build(BuildContext context) {
-    return Login();
+    return StreamBuilder<String>(
+      stream: userBloc.userToken,
+      initialData: null,
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        String token = snapshot.data;
+        if (token == null) {
+          return Login(userBloc: userBloc);
+        } else {
+          saveToken(token);
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Products'),
+            ),
+            body: Center(
+              child: Text('Login'),
+            ),
+          );
+        }
+      },
+    );
   }
 }
