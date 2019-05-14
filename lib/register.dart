@@ -1,38 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:node_shop/register.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:node_shop/user_bloc.dart';
+import 'package:node_shop/utils/helper.dart';
 
-class Login extends StatefulWidget {
+class Register extends StatefulWidget {
   final UserBloc userBloc;
-  Login({@required this.userBloc});
+
+  Register({@required this.userBloc});
+
   @override
-  _LoginState createState() => _LoginState();
+  _RegisterState createState() => _RegisterState();
 }
 
-class _LoginState extends State<Login> {
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+class _RegisterState extends State<Register> {
+  final TextEditingController _emailController = TextEditingController();
 
-  FocusNode _passwordNode = FocusNode();
+  final TextEditingController _passwordController = TextEditingController();
 
-  _loginUser() {
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  final FocusNode _emailNode = FocusNode();
+
+  final FocusNode _passwordNode = FocusNode();
+
+  final FocusNode _confirmPasswordNode = FocusNode();
+
+  _registerUser(BuildContext context) {
     String email = _emailController.text;
     String password = _passwordController.text;
+    String confirmPassword = _confirmPasswordController.text;
 
     if (email.isEmpty) {
+      _emailNode.unfocus();
+      _passwordNode.unfocus();
+      _confirmPasswordNode.unfocus();
+      showToast("Enter email");
     } else if (password.isEmpty) {
+      showToast("Enter password");
+    } else if (password.isEmpty) {
+      showToast("Enter confirm password");
+    } else if (password != confirmPassword) {
+      showToast("Password doesn't match");
+    } else if (password.length > 20) {
+      showToast("wooah... Too long!!! \n make it under 20",
+          length: Toast.LENGTH_LONG);
     } else {
       UserCredentials credentials = UserCredentials(email, password);
-      widget.userBloc.userLogin.add(credentials);
+      widget.userBloc.userRegister.add(credentials);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // userBloc.userAuth.add(UserCredentials(email, password))
     return Scaffold(
       appBar: AppBar(
-        title: Text('Welcome To Shop'),
+        title: Text('Register'),
       ),
       body: Container(
         padding: const EdgeInsets.all(16.0),
@@ -49,6 +72,8 @@ class _LoginState extends State<Login> {
               onSubmitted: (value) {
                 FocusScope.of(context).requestFocus(_passwordNode);
               },
+              focusNode: _emailNode,
+              autocorrect: false,
             ),
             SizedBox(height: 20.0),
             TextField(
@@ -57,8 +82,21 @@ class _LoginState extends State<Login> {
               decoration: InputDecoration(
                   hasFloatingPlaceholder: true, hintText: 'Password'),
               focusNode: _passwordNode,
+              textInputAction: TextInputAction.next,
               onSubmitted: (value) {
-                _loginUser();
+                _passwordNode.unfocus();
+                FocusScope.of(context).requestFocus(_confirmPasswordNode);
+              },
+            ),
+            SizedBox(height: 20.0),
+            TextField(
+              obscureText: true,
+              controller: _confirmPasswordController,
+              decoration: InputDecoration(
+                  hasFloatingPlaceholder: true, hintText: 'Confirm Password'),
+              focusNode: _confirmPasswordNode,
+              onSubmitted: (value) {
+                _registerUser(context);
               },
             ),
             SizedBox(height: 100.0),
@@ -74,39 +112,16 @@ class _LoginState extends State<Login> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40.0, vertical: 12.0),
                     child: Text(
-                      'Login',
+                      'Register',
                       style: TextStyle(color: Colors.white, fontSize: 20.0),
                     ),
-                    onPressed: _loginUser,
+                    onPressed: () {
+                      _registerUser(context);
+                    },
                   );
                 }
               },
             ),
-            SizedBox(height: 20.0),
-            Container(
-              width: double.maxFinite,
-              height: 44.0,
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    right: 0.0,
-                    child: FlatButton(
-                      child: Text(
-                        'Create an account',
-                        style: TextStyle(fontSize: 17.0),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    Register(userBloc: widget.userBloc)));
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            )
           ],
         ),
       ),

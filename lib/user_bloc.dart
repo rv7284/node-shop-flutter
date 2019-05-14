@@ -22,14 +22,20 @@ class UserBloc {
   Stream<String> get userToken => _loginStatusSubject.stream;
   final _loginStatusSubject = BehaviorSubject<String>();
 
+  Stream<String> get errorMessage => _errorMessageSubject.stream;
+  final _errorMessageSubject = BehaviorSubject<String>();
+
   Stream<bool> get isLoading => _isLoading.stream;
   final _isLoading = BehaviorSubject<bool>();
 
-  Sink<UserCredentials> get userAuth => _userController.sink;
-  final _userController = StreamController<UserCredentials>();
+  Sink<UserCredentials> get userLogin => _userLogin.sink;
+  final _userLogin = StreamController<UserCredentials>();
+
+  Sink<UserCredentials> get userRegister => _userRegister.sink;
+  final _userRegister = StreamController<UserCredentials>();
 
   void close() {
-    _userController.close();
+    _userLogin.close();
     _loginStatusSubject.close();
     _isLoading.close();
   }
@@ -54,14 +60,36 @@ class UserBloc {
         _loginStatusSubject.sink.add(token);
       }
     });
-    _userController.stream.listen((userCredentials) async {
+    _userLogin.stream.listen((userCredentials) async {
       _isLoading.sink.add(true);
       var response = await http.post(_baseUrl + '/user/login',
           body: userCredentials.json());
       var jsonResponse = convert.jsonDecode(response.body);
       String token = jsonResponse['token'];
-      _isLoading.sink.add(false);
-      _loginStatusSubject.sink.add(token);
+      if (token == null) {
+        String message = jsonResponse['message'];
+        _isLoading.sink.add(false);
+        _errorMessageSubject.sink.add(message ?? "Something wen't wronge");
+      } else {
+        _isLoading.sink.add(false);
+        _loginStatusSubject.sink.add(token);
+      }
+    });
+
+    _userRegister.stream.listen((userCredentials) async {
+      _isLoading.sink.add(true);
+      var response = await http.post(_baseUrl + '/user/signup',
+          body: userCredentials.json());
+      var jsonResponse = convert.jsonDecode(response.body);
+      String token = jsonResponse['token'];
+      if (token == null) {
+        String message = jsonResponse['message'];
+        _isLoading.sink.add(false);
+        _errorMessageSubject.sink.add(message ?? "Something wen't wronge");
+      } else {
+        _isLoading.sink.add(false);
+        _loginStatusSubject.sink.add(token);
+      }
     });
   }
 }

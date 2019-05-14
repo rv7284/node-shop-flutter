@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:node_shop/home_screen.dart';
 import 'package:node_shop/login.dart';
 import 'package:node_shop/user_bloc.dart';
+import 'package:node_shop/utils/helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(MyApp());
@@ -34,6 +35,11 @@ class _MyHomePageState extends State<MyHomePage> {
   final UserBloc userBloc = UserBloc();
   @override
   Widget build(BuildContext context) {
+    userBloc.errorMessage.listen((message) {
+      if (message != null) {
+        showToast(message);
+      }
+    });
     return StreamBuilder<String>(
       stream: userBloc.userToken,
       initialData: null,
