@@ -40,6 +40,13 @@ class UserBloc {
     _initUser();
   }
 
+  logoutUser() {
+    SharedPreferences.getInstance().then((prefs) async {
+      await prefs.remove('token');
+      _loginStatusSubject.sink.add(null);
+    });
+  }
+
   _initUser() async {
     SharedPreferences.getInstance().then((prefs) {
       String token = prefs.getString('token');

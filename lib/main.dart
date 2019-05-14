@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:node_shop/home_screen.dart';
 import 'package:node_shop/login.dart';
 import 'package:node_shop/user_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -42,14 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
           return Login(userBloc: userBloc);
         } else {
           saveToken(token);
-          return Scaffold(
-            appBar: AppBar(
-              title: Text('Products'),
-            ),
-            body: Center(
-              child: Text('Login'),
-            ),
-          );
+          return HomeScreen(userBloc: userBloc);
         }
       },
     );

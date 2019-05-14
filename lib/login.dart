@@ -29,6 +29,8 @@ class _LoginState extends State<Login> {
               controller: _emailController,
               decoration: InputDecoration(
                   hasFloatingPlaceholder: true, hintText: 'Email'),
+              textInputAction: TextInputAction.next,
+              keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 20.0),
             TextField(
@@ -57,7 +59,9 @@ class _LoginState extends State<Login> {
                       String email = _emailController.text;
                       String password = _passwordController.text;
 
-                      if (email.isNotEmpty && password.isNotEmpty) {
+                      if (email.isEmpty) {
+                      } else if (password.isEmpty) {
+                      } else {
                         UserCredentials credentials =
                             UserCredentials(email, password);
                         widget.userBloc.userAuth.add(credentials);
